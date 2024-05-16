@@ -52,90 +52,120 @@ class _EditProductPageState extends State<EditProductPage> {
     });
   }
 
+  Future<void> _updateProduct() async {
+    await FirebaseFirestore.instance
+        .collection('products')
+        .doc(widget.productId)
+        .update({
+      'name': _nameController.text,
+      'price': double.tryParse(_priceController.text) ?? 0,
+      'quantity': int.tryParse(_quantityController.text) ?? 0,
+      'category': _selectedCategory,
+    }).then((value) {
+      // Affichez un message de succès ou naviguez vers une autre page
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Produit mis à jour avec succès'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.of(context).pop();
+    }).catchError((error) {
+      // Gérez les erreurs
+      print('Erreur lors de la mise à jour du produit: $error');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Modifier le produit'),
+        title: const Text('Modifier le produit'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nom du produit',
-              ),
+        child: SingleChildScrollView(
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _priceController,
-              decoration: const InputDecoration(
-                labelText: 'Prix du produit',
-                suffixText: '€',
-              ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _quantityController,
-              decoration: const InputDecoration(
-                labelText: 'Quantité',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedCategory.isNotEmpty &&
-                      _categories.contains(_selectedCategory)
-                  ? _selectedCategory
-                  : null,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedCategory = newValue!;
-                });
-              },
-              items: _categories.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              decoration: const InputDecoration(
-                labelText: 'Catégorie',
-              ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Mettez à jour le produit dans Firestore
-                FirebaseFirestore.instance
-                    .collection('products')
-                    .doc(widget.productId)
-                    .update({
-                  'name': _nameController.text,
-                  'price': double.tryParse(_priceController.text) ?? 0,
-                  'quantity': int.tryParse(_quantityController.text) ?? 0,
-                  'category': _selectedCategory,
-                }).then((value) {
-                  // Affichez un message de succès ou naviguez vers une autre page
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Produit mis à jour avec succès'),
-                      duration: Duration(seconds: 2),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nom du produit',
+                      prefixIcon: Icon(Icons.label),
+                      border: OutlineInputBorder(),
                     ),
-                  );
-                }).catchError((error) {
-                  // Gérez les erreurs
-                  print('Erreur lors de la mise à jour du produit: $error');
-                });
-              },
-              child: Text('Enregistrer'),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: _priceController,
+                    decoration: InputDecoration(
+                      labelText: 'Prix du produit',
+                      prefixIcon: Icon(Icons.euro),
+                      suffixText: '€',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: _quantityController,
+                    decoration: InputDecoration(
+                      labelText: 'Quantité',
+                      prefixIcon: Icon(Icons.confirmation_number),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory.isNotEmpty &&
+                            _categories.contains(_selectedCategory)
+                        ? _selectedCategory
+                        : null,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedCategory = newValue!;
+                      });
+                    },
+                    items: _categories.map((String category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelText: 'Catégorie',
+                      prefixIcon: Icon(Icons.category),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _updateProduct,
+                          child: Text('Enregistrer'),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );

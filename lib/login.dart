@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart'; // Importe la bibliothèque de cryptographie
@@ -50,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       'email': email,
       'password': hashedPassword, // Enregistre le mot de passe hashé
       'created_at': DateTime.now(),
+      'isOnline': false, // Ajoutez le champ isOnline
     });
   }
 
@@ -120,6 +120,14 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
+
+    // Met à jour le statut isOnline à true
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(snapshot.docs.first.id)
+        .update({
+      'isOnline': true,
+    });
 
     // Connecté avec succès
     Navigator.of(context).pushReplacement(

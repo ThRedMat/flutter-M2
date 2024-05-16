@@ -6,6 +6,7 @@ import 'categorie.dart'; // Import CategoriesPage
 import 'edit_product_page.dart'; // Import EditProductPage
 import 'add_product.dart'; // Import AddProductPage
 import 'login.dart'; // Import LoginPage
+import 'admin_users_page.dart'; // Import AdminUsersPage
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -21,18 +22,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String userName = '';
   String? profileImageUrl;
+  bool isAdmin = false;
 
   @override
   void initState() {
     super.initState();
+    userName = widget.username;
     _loadUserProfile();
   }
 
   Future<void> _loadUserProfile() async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('user')
-        .doc(widget.username)
-        .get();
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('user').doc(userName).get();
 
     if (userDoc.exists) {
       var userData = userDoc.data() as Map<String, dynamic>;
@@ -41,11 +42,18 @@ class _MyHomePageState extends State<MyHomePage> {
         profileImageUrl = userData.containsKey('profileImageUrl')
             ? userData['profileImageUrl']
             : null;
+        isAdmin = userData['admin'] ?? false;
       });
     }
   }
 
   Future<void> _signOut() async {
+    // Met à jour le statut isOnline à false
+    await FirebaseFirestore.instance.collection('user').doc(userName).update({
+      'isOnline': false,
+    });
+
+    // Déconnexion de l'utilisateur
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -83,10 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 30,
-                        backgroundImage:
-                            const AssetImage('assets/zero-two-bot.jpg'),
+                        backgroundImage: AssetImage('assets/zero-two-bot.jpg'),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -132,6 +139,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
+            if (isAdmin)
+              ListTile(
+                leading: const Icon(Icons.admin_panel_settings),
+                title: const Text('Gérer les utilisateurs'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AdminUsersPage()),
+                  );
+                },
+              ),
             Container(
               color: Colors.red,
               child: ListTile(
