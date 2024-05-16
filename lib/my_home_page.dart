@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> deleteProduct(String id) async {
-    // Implement deletion logic
+    await FirebaseFirestore.instance.collection('products').doc(id).delete();
   }
 
   @override
