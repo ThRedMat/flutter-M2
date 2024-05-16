@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "163125879536",
+    "firebase_url": "https://gestionstocks-98ab5-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "gestionstocks-98ab5",
+    "storage_bucket": "gestionstocks-98ab5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163125879536:android:add4df57168b35950d5835",
+        "android_client_info": {
+          "package_name": "com.example.gestion_stock"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_fJVtPrtysQY-IjhMfzlq5IxzTDvHBBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163125879536:android:0e6248e23a934e850d5835",
+        "android_client_info": {
+          "package_name": "com.example.stocks"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_fJVtPrtysQY-IjhMfzlq5IxzTDvHBBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
