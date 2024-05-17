@@ -10,6 +10,7 @@ import 'login.dart';
 import 'admin_users_page.dart';
 import 'manage_establishments.dart';
 import 'theme_provider.dart';
+import 'category_chart_page.dart'; // Import the category chart page
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -244,6 +245,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                     isEstablishmentAdmin: isEstablishmentAdmin,
                                     establishmentId: establishmentId,
                                   )),
+                        );
+                      },
+                    ),
+                  if (isAdmin || isEstablishmentAdmin)
+                    ListTile(
+                      leading: const Icon(Icons.bar_chart),
+                      title:
+                          const Text('Graphique des quantités par catégorie'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CategoryChartPage()),
                         );
                       },
                     ),
