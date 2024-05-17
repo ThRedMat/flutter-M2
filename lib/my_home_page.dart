@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'camera.dart';
 import 'categorie.dart';
 import 'edit_product_page.dart';
@@ -8,6 +9,7 @@ import 'add_product.dart';
 import 'login.dart';
 import 'admin_users_page.dart';
 import 'manage_establishments.dart';
+import 'theme_provider.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -100,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -132,114 +136,135 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Menu',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  DrawerHeader(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Menu',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 30,
+                              backgroundImage:
+                                  AssetImage('assets/zero-two-bot.jpg'),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Bonjour $userName',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 30,
-                        backgroundImage: AssetImage('assets/zero-two-bot.jpg'),
+                  ListTile(
+                    leading: const Icon(Icons.camera_alt),
+                    title: const Text('Ajouter un produit depuis la caméra'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CameraPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.category),
+                    title: const Text('Ajouter une catégorie'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CategoriesPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.add),
+                    title: const Text('Ajouter un produit'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddProductPage()),
+                      );
+                    },
+                  ),
+                  if (isAdmin)
+                    ListTile(
+                      leading: const Icon(Icons.business),
+                      title: const Text('Gérer les établissements'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ManageEstablishmentsPage()),
+                        );
+                      },
+                    ),
+                  if (isAdmin || isEstablishmentAdmin)
+                    ListTile(
+                      leading: const Icon(Icons.admin_panel_settings),
+                      title: const Text('Gérer les utilisateurs'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AdminUsersPage(
+                                    isAdmin: isAdmin,
+                                    isEstablishmentAdmin: isEstablishmentAdmin,
+                                    establishmentId: establishmentId,
+                                  )),
+                        );
+                      },
+                    ),
+                  Container(
+                    color: Colors.red,
+                    child: ListTile(
+                      leading: const Icon(Icons.logout, color: Colors.white),
+                      title: const Text(
+                        'Déconnexion',
+                        style: TextStyle(color: Colors.white),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Bonjour $userName',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
+                      onTap: () async {
+                        await _signOut();
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Ajouter un produit depuis la caméra'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CameraPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.category),
-              title: const Text('Ajouter une catégorie'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CategoriesPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('Ajouter un produit'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddProductPage()),
-                );
-              },
-            ),
-            if (isAdmin)
-              ListTile(
-                leading: const Icon(Icons.business),
-                title: const Text('Gérer les établissements'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ManageEstablishmentsPage()),
-                  );
-                },
+              leading: Icon(
+                themeProvider.isDarkMode ? Icons.nights_stay : Icons.wb_sunny,
+                color: themeProvider.isDarkMode ? Colors.yellow : Colors.blue,
               ),
-            if (isAdmin || isEstablishmentAdmin)
-              ListTile(
-                leading: const Icon(Icons.admin_panel_settings),
-                title: const Text('Gérer les utilisateurs'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AdminUsersPage(
-                              isAdmin: isAdmin,
-                              isEstablishmentAdmin: isEstablishmentAdmin,
-                              establishmentId: establishmentId,
-                            )),
-                  );
-                },
-              ),
-            Container(
-              color: Colors.red,
-              child: ListTile(
-                leading: const Icon(Icons.logout, color: Colors.white),
-                title: const Text(
-                  'Déconnexion',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  await _signOut();
-                },
-              ),
+              title: const Text('Changer de thème'),
+              onTap: () {
+                final provider =
+                    Provider.of<ThemeProvider>(context, listen: false);
+                provider.toggleTheme(!themeProvider.isDarkMode);
+              },
             ),
           ],
         ),
