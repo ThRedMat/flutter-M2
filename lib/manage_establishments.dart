@@ -97,76 +97,87 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Gérer les établissements'),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Nom de l\'établissement',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer un nom';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _name = value ?? '';
-                    },
-                    initialValue: _name,
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Adresse de l\'établissement',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer une adresse';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _address = value ?? '';
-                    },
-                    initialValue: _address,
-                  ),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:
-                          _isEditing ? _editEstablishment : _addEstablishment,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Nom de l\'établissement',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.blue[50],
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer un nom';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _name = value ?? '';
+                        },
+                        initialValue: _name,
                       ),
-                      child: Text(
-                        _isEditing ? 'Mettre à jour' : 'Ajouter',
-                        style: TextStyle(fontSize: 16),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Adresse de l\'établissement',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.blue[50],
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer une adresse';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _address = value ?? '';
+                        },
+                        initialValue: _address,
                       ),
-                    ),
+                      SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isEditing
+                              ? _editEstablishment
+                              : _addEstablishment,
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                          ),
+                          child: Text(
+                            _isEditing ? 'Mettre à jour' : 'Ajouter',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -181,7 +192,8 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                        child: CircularProgressIndicator(color: Colors.teal));
+                      child: CircularProgressIndicator(color: Colors.blue),
+                    );
                   }
                   final data = snapshot.requireData;
 
@@ -191,14 +203,28 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
                       final establishment = data.docs[index];
                       return Card(
                         margin: EdgeInsets.symmetric(vertical: 8.0),
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         child: ListTile(
-                          title: Text(establishment['name']),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8.0,
+                          ),
+                          title: Text(
+                            establishment['name'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
                           subtitle: Text(establishment['address']),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.edit, color: Colors.teal),
+                                icon: Icon(Icons.edit, color: Colors.blue),
                                 onPressed: () {
                                   _startEditing(
                                     establishment.id,
