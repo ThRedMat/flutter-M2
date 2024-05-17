@@ -23,7 +23,7 @@ class _EditUserPageState extends State<EditUserPage> {
   late bool _isAdmin;
   late bool _isEstablishmentAdmin;
   String? _selectedEstablishment;
-  List<String> _establishments = [];
+  List<Map<String, dynamic>> _establishments = [];
   bool _isLoadingEstablishments = true;
 
   @override
@@ -47,12 +47,24 @@ class _EditUserPageState extends State<EditUserPage> {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('establishments').get();
 
-    List<String> establishments =
-        querySnapshot.docs.map((doc) => doc['name'] as String).toList();
+    List<Map<String, dynamic>> establishments = querySnapshot.docs.map((doc) {
+      return {
+        'id': doc.id,
+        'name': doc['name'],
+      };
+    }).toList();
 
     setState(() {
       _establishments = establishments;
       _isLoadingEstablishments = false;
+
+      // Find the name of the establishment assigned to the user
+      if (_selectedEstablishment != null) {
+        var assignedEstablishment = _establishments.firstWhere(
+            (establishment) => establishment['id'] == _selectedEstablishment,
+            orElse: () => {'name': null});
+        _selectedEstablishment = assignedEstablishment['name'];
+      }
     });
   }
 
@@ -82,7 +94,6 @@ class _EditUserPageState extends State<EditUserPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Modifier l\'utilisateur'),
-        backgroundColor: Colors.teal,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -120,18 +131,16 @@ class _EditUserPageState extends State<EditUserPage> {
             _isLoadingEstablishments
                 ? Center(child: CircularProgressIndicator(color: Colors.teal))
                 : DropdownButtonFormField<String>(
-                    value: _establishments.contains(_selectedEstablishment)
-                        ? _selectedEstablishment
-                        : null,
+                    value: _selectedEstablishment,
                     onChanged: (newValue) {
                       setState(() {
                         _selectedEstablishment = newValue!;
                       });
                     },
-                    items: _establishments.map((String establishment) {
+                    items: _establishments.map((establishment) {
                       return DropdownMenuItem<String>(
-                        value: establishment,
-                        child: Text(establishment),
+                        value: establishment['name'],
+                        child: Text(establishment['name']),
                       );
                     }).toList(),
                     decoration: const InputDecoration(
@@ -154,7 +163,6 @@ class _EditUserPageState extends State<EditUserPage> {
             ElevatedButton(
               onPressed: _updateUser,
               style: ElevatedButton.styleFrom(
-                primary: Colors.teal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
