@@ -7,6 +7,7 @@ import 'edit_product_page.dart'; // Import EditProductPage
 import 'add_product.dart'; // Import AddProductPage
 import 'login.dart'; // Import LoginPage
 import 'admin_users_page.dart'; // Import AdminUsersPage
+import 'manage_establishments.dart'; // Import ManageEstablishmentsPage
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -139,6 +140,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
+            if (isAdmin)
+              ListTile(
+                leading: const Icon(Icons.business),
+                title: const Text('Gérer les établissements'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ManageEstablishmentsPage()),
+                  );
+                },
+              ),
             if (isAdmin)
               ListTile(
                 leading: const Icon(Icons.admin_panel_settings),

@@ -10,9 +10,19 @@ class _AddProductPageState extends State<AddProductPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
-  String _selectedCategory = '';
+  String? _selectedCategory;
   List<String> _categories = [];
   bool _isLoadingCategories = true;
+  String? _selectedEstablishment;
+  List<String> _establishments = [];
+  bool _isLoadingEstablishments = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+    _loadEstablishments();
+  }
 
   Future<void> _loadCategories() async {
     setState(() {
@@ -31,24 +41,46 @@ class _AddProductPageState extends State<AddProductPage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadCategories();
+  Future<void> _loadEstablishments() async {
+    setState(() {
+      _isLoadingEstablishments = true;
+    });
+
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('establishments').get();
+
+    List<String> establishments =
+        querySnapshot.docs.map((doc) => doc['name'] as String).toList();
+
+    setState(() {
+      _establishments = establishments;
+      _isLoadingEstablishments = false;
+    });
   }
 
   Future<void> addProduct() async {
     if (_nameController.text.isEmpty ||
         _priceController.text.isEmpty ||
         _quantityController.text.isEmpty ||
-        _selectedCategory.isEmpty) {
+        _selectedCategory == null ||
+        _selectedEstablishment == null) {
       return;
     }
+
+    // Récupérer l'ID de l'établissement sélectionné
+    DocumentSnapshot establishmentDoc = await FirebaseFirestore.instance
+        .collection('establishments')
+        .where('name', isEqualTo: _selectedEstablishment)
+        .limit(1)
+        .get()
+        .then((snapshot) => snapshot.docs.first);
+
     await FirebaseFirestore.instance.collection('products').add({
       'name': _nameController.text,
       'price': double.tryParse(_priceController.text) ?? 0,
       'quantity': int.tryParse(_quantityController.text) ?? 0,
       'category': _selectedCategory,
+      'establishmentId': establishmentDoc.id,
     });
     Navigator.pop(context); // Close the add product page after adding
   }
@@ -95,8 +127,7 @@ class _AddProductPageState extends State<AddProductPage> {
             _isLoadingCategories
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    value: _selectedCategory.isNotEmpty &&
-                            _categories.contains(_selectedCategory)
+                    value: _categories.contains(_selectedCategory)
                         ? _selectedCategory
                         : null,
                     onChanged: (newValue) {
@@ -112,6 +143,29 @@ class _AddProductPageState extends State<AddProductPage> {
                     }).toList(),
                     decoration: const InputDecoration(
                       labelText: 'Catégorie',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+            SizedBox(height: 16),
+            _isLoadingEstablishments
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<String>(
+                    value: _establishments.contains(_selectedEstablishment)
+                        ? _selectedEstablishment
+                        : null,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedEstablishment = newValue!;
+                      });
+                    },
+                    items: _establishments.map((String establishment) {
+                      return DropdownMenuItem<String>(
+                        value: establishment,
+                        child: Text(establishment),
+                      );
+                    }).toList(),
+                    decoration: const InputDecoration(
+                      labelText: 'Établissement',
                       border: OutlineInputBorder(),
                     ),
                   ),
