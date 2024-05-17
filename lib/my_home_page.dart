@@ -115,7 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ? CircularProgressIndicator(color: Colors.white)
                   : DropdownButton<String>(
                       value: selectedEstablishment,
-                      dropdownColor: Colors.white,
+                      dropdownColor: themeProvider.isDarkMode
+                          ? Colors.grey[800]
+                          : Colors.white,
                       icon: const Icon(Icons.arrow_drop_down,
                           color: Colors.white),
                       onChanged: (String? newValue) {
@@ -127,7 +129,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           .map<DropdownMenuItem<String>>((establishment) {
                         return DropdownMenuItem<String>(
                           value: establishment['id'],
-                          child: Text(establishment['name']),
+                          child: Text(
+                            establishment['name'],
+                            style: TextStyle(
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
                         );
                       }).toList(),
                     ),
@@ -293,6 +302,8 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: sortedDocs.length,
             itemBuilder: (context, index) {
               final product = sortedDocs[index];
+              final quantity = product['quantity'];
+
               return Dismissible(
                 key: UniqueKey(),
                 direction: DismissDirection.endToStart,
@@ -309,6 +320,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   margin:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   elevation: 2,
+                  shape: quantity < 5
+                      ? RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: const BorderSide(color: Colors.red, width: 2),
+                        )
+                      : RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                   child: ListTile(
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         const SizedBox(height: 4),
                         Text('Prix: ${product['price']} €'),
-                        Text('Quantité: ${product['quantity']}'),
+                        Text('Quantité: $quantity'),
                         Text('Catégorie: ${product['category']}'),
                       ],
                     ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'theme_provider.dart';
 
 class AddProductPage extends StatefulWidget {
   @override
@@ -87,6 +89,10 @@ class _AddProductPageState extends State<AddProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    final inputFillColor = isDarkMode ? Colors.grey[800] : Colors.grey[200];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Ajouter un produit'),
@@ -104,7 +110,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: inputFillColor,
               ),
             ),
             SizedBox(height: 16),
@@ -117,7 +123,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: inputFillColor,
               ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
@@ -130,7 +136,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: inputFillColor,
               ),
               keyboardType: TextInputType.number,
             ),
@@ -149,7 +155,12 @@ class _AddProductPageState extends State<AddProductPage> {
                     items: _categories.map((String category) {
                       return DropdownMenuItem<String>(
                         value: category,
-                        child: Text(category),
+                        child: Text(
+                          category,
+                          style: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
                       );
                     }).toList(),
                     decoration: InputDecoration(
@@ -158,7 +169,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: inputFillColor,
                     ),
                   ),
             SizedBox(height: 16),
@@ -176,7 +187,12 @@ class _AddProductPageState extends State<AddProductPage> {
                     items: _establishments.map((String establishment) {
                       return DropdownMenuItem<String>(
                         value: establishment,
-                        child: Text(establishment),
+                        child: Text(
+                          establishment,
+                          style: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
                       );
                     }).toList(),
                     decoration: InputDecoration(
@@ -185,7 +201,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: inputFillColor,
                     ),
                   ),
             SizedBox(height: 16),
