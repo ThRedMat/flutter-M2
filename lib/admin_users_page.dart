@@ -65,7 +65,17 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
 
                 return ListTile(
                   title: Text(userData['username'] ?? 'Inconnu'),
-                  subtitle: Text(isOnline ? 'En ligne' : 'Hors ligne'),
+                  subtitle: Row(
+                    children: [
+                      Icon(
+                        isOnline ? Icons.circle : Icons.circle_outlined,
+                        color: isOnline ? Colors.green : Colors.grey,
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(isOnline ? 'En ligne' : 'Hors ligne'),
+                    ],
+                  ),
                   trailing: widget.isAdmin
                       ? Switch(
                           value: isAdmin,

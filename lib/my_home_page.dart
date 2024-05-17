@@ -26,12 +26,16 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isAdmin = false;
   bool isEstablishmentAdmin = false;
   String? establishmentId;
+  List<Map<String, dynamic>> establishments = [];
+  bool isLoadingEstablishments = true;
+  String? selectedEstablishment;
 
   @override
   void initState() {
     super.initState();
     userName = widget.username;
     _loadUserProfile();
+    _loadEstablishments();
   }
 
   Future<void> _loadUserProfile() async {
@@ -48,8 +52,36 @@ class _MyHomePageState extends State<MyHomePage> {
         isAdmin = userData['admin'] ?? false;
         isEstablishmentAdmin = userData['isEstablishmentAdmin'] ?? false;
         establishmentId = userData['establishmentId'];
+        selectedEstablishment = establishmentId;
       });
     }
+  }
+
+  Future<void> _loadEstablishments() async {
+    setState(() {
+      isLoadingEstablishments = true;
+    });
+
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('establishments').get();
+
+    List<Map<String, dynamic>> establishmentsList =
+        querySnapshot.docs.map((doc) {
+      return {
+        'id': doc.id,
+        'name': doc['name'],
+      };
+    }).toList();
+
+    setState(() {
+      establishments = establishmentsList;
+      isLoadingEstablishments = false;
+
+      // Set default selected establishment if not already set
+      if (selectedEstablishment == null && establishments.isNotEmpty) {
+        selectedEstablishment = establishments.first['id'];
+      }
+    });
   }
 
   Future<void> _signOut() async {
@@ -71,6 +103,33 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          if (isAdmin) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: isLoadingEstablishments
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : DropdownButton<String>(
+                      value: selectedEstablishment,
+                      dropdownColor: Colors.white,
+                      icon: const Icon(Icons.arrow_drop_down,
+                          color: Colors.white),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedEstablishment = newValue;
+                        });
+                      },
+                      items: establishments
+                          .map<DropdownMenuItem<String>>((establishment) {
+                        return DropdownMenuItem<String>(
+                          value: establishment['id'],
+                          child: Text(establishment['name']),
+                        );
+                      }).toList(),
+                    ),
+            ),
+          ],
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -188,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('products')
-            .where('establishmentId', isEqualTo: establishmentId)
+            .where('establishmentId', isEqualTo: selectedEstablishment)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
