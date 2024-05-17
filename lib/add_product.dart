@@ -98,34 +98,45 @@ class _AddProductPageState extends State<AddProductPage> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Nom du produit',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
             ),
             SizedBox(height: 16),
             TextField(
               controller: _priceController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Prix du produit',
                 suffixText: '€',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             SizedBox(height: 16),
             TextField(
               controller: _quantityController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Quantité',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 16),
             _isLoadingCategories
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: Colors.teal))
                 : DropdownButtonFormField<String>(
                     value: _categories.contains(_selectedCategory)
                         ? _selectedCategory
@@ -141,14 +152,18 @@ class _AddProductPageState extends State<AddProductPage> {
                         child: Text(category),
                       );
                     }).toList(),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Catégorie',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
                     ),
                   ),
             SizedBox(height: 16),
             _isLoadingEstablishments
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: Colors.teal))
                 : DropdownButtonFormField<String>(
                     value: _establishments.contains(_selectedEstablishment)
                         ? _selectedEstablishment
@@ -164,9 +179,13 @@ class _AddProductPageState extends State<AddProductPage> {
                         child: Text(establishment),
                       );
                     }).toList(),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Établissement',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
                     ),
                   ),
             SizedBox(height: 16),
@@ -174,7 +193,16 @@ class _AddProductPageState extends State<AddProductPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: addProduct,
-                child: Text('Ajouter Produit'),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                ),
+                child: Text(
+                  'Ajouter Produit',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ),
           ],

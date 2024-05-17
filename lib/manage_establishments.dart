@@ -97,6 +97,7 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Gérer les établissements'),
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -107,8 +108,14 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
               child: Column(
                 children: [
                   TextFormField(
-                    decoration:
-                        InputDecoration(labelText: 'Nom de l\'établissement'),
+                    decoration: InputDecoration(
+                      labelText: 'Nom de l\'établissement',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Veuillez entrer un nom';
@@ -120,9 +127,16 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
                     },
                     initialValue: _name,
                   ),
+                  SizedBox(height: 16),
                   TextFormField(
                     decoration: InputDecoration(
-                        labelText: 'Adresse de l\'établissement'),
+                      labelText: 'Adresse de l\'établissement',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Veuillez entrer une adresse';
@@ -135,10 +149,22 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
                     initialValue: _address,
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed:
-                        _isEditing ? _editEstablishment : _addEstablishment,
-                    child: Text(_isEditing ? 'Mettre à jour' : 'Ajouter'),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed:
+                          _isEditing ? _editEstablishment : _addEstablishment,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                      ),
+                      child: Text(
+                        _isEditing ? 'Mettre à jour' : 'Ajouter',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -154,7 +180,8 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
                     return Center(child: Text('Erreur: ${snapshot.error}'));
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                        child: CircularProgressIndicator(color: Colors.teal));
                   }
                   final data = snapshot.requireData;
 
@@ -162,29 +189,32 @@ class _ManageEstablishmentsPageState extends State<ManageEstablishmentsPage> {
                     itemCount: data.docs.length,
                     itemBuilder: (context, index) {
                       final establishment = data.docs[index];
-                      return ListTile(
-                        title: Text(establishment['name']),
-                        subtitle: Text(establishment['address']),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                _startEditing(
-                                  establishment.id,
-                                  establishment['name'],
-                                  establishment['address'],
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                _deleteEstablishment(establishment.id);
-                              },
-                            ),
-                          ],
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: ListTile(
+                          title: Text(establishment['name']),
+                          subtitle: Text(establishment['address']),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Colors.teal),
+                                onPressed: () {
+                                  _startEditing(
+                                    establishment.id,
+                                    establishment['name'],
+                                    establishment['address'],
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _deleteEstablishment(establishment.id);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

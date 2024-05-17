@@ -3,7 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'edit_user_page.dart';
 
 class AdminUsersPage extends StatefulWidget {
-  const AdminUsersPage({Key? key}) : super(key: key);
+  final bool isAdmin;
+  final bool isEstablishmentAdmin;
+  final String? establishmentId;
+
+  const AdminUsersPage({
+    Key? key,
+    required this.isAdmin,
+    required this.isEstablishmentAdmin,
+    required this.establishmentId,
+  }) : super(key: key);
 
   @override
   _AdminUsersPageState createState() => _AdminUsersPageState();
@@ -23,6 +32,12 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    Query usersQuery = FirebaseFirestore.instance.collection('user');
+    if (widget.isEstablishmentAdmin && !widget.isAdmin) {
+      usersQuery = usersQuery.where('establishmentId',
+          isEqualTo: widget.establishmentId);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gérer les utilisateurs'),
@@ -30,7 +45,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('user').snapshots(),
+          stream: usersQuery.snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(child: Text('Erreur: ${snapshot.error}'));
@@ -45,22 +60,20 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
               itemBuilder: (context, index) {
                 final user = data.docs[index];
                 final userData = user.data() as Map<String, dynamic>;
-                final bool isAdmin = userData.containsKey('admin')
-                    ? userData['admin'] as bool
-                    : false;
-                final bool isOnline = userData.containsKey('isOnline')
-                    ? userData['isOnline'] as bool
-                    : false;
+                final bool isAdmin = userData['admin'] ?? false;
+                final bool isOnline = userData['isOnline'] ?? false;
 
                 return ListTile(
-                  title: Text(userData['username']),
+                  title: Text(userData['username'] ?? 'Inconnu'),
                   subtitle: Text(isOnline ? 'En ligne' : 'Hors ligne'),
-                  trailing: Switch(
-                    value: isAdmin,
-                    onChanged: (value) {
-                      _toggleAdminStatus(user.id, isAdmin);
-                    },
-                  ),
+                  trailing: widget.isAdmin
+                      ? Switch(
+                          value: isAdmin,
+                          onChanged: (value) {
+                            _toggleAdminStatus(user.id, isAdmin);
+                          },
+                        )
+                      : null,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -68,6 +81,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                         builder: (context) => EditUserPage(
                           userId: user.id,
                           userData: userData,
+                          isAdmin: widget.isAdmin,
                         ),
                       ),
                     );

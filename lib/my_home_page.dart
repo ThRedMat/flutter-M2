@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'camera.dart'; // Import CameraPage
-import 'categorie.dart'; // Import CategoriesPage
-import 'edit_product_page.dart'; // Import EditProductPage
-import 'add_product.dart'; // Import AddProductPage
-import 'login.dart'; // Import LoginPage
-import 'admin_users_page.dart'; // Import AdminUsersPage
-import 'manage_establishments.dart'; // Import ManageEstablishmentsPage
+import 'camera.dart';
+import 'categorie.dart';
+import 'edit_product_page.dart';
+import 'add_product.dart';
+import 'login.dart';
+import 'admin_users_page.dart';
+import 'manage_establishments.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -24,6 +24,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String userName = '';
   String? profileImageUrl;
   bool isAdmin = false;
+  bool isEstablishmentAdmin = false;
+  String? establishmentId;
 
   @override
   void initState() {
@@ -44,17 +46,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ? userData['profileImageUrl']
             : null;
         isAdmin = userData['admin'] ?? false;
+        isEstablishmentAdmin = userData['isEstablishmentAdmin'] ?? false;
+        establishmentId = userData['establishmentId'];
       });
     }
   }
 
   Future<void> _signOut() async {
-    // Met à jour le statut isOnline à false
     await FirebaseFirestore.instance.collection('user').doc(userName).update({
       'isOnline': false,
     });
-
-    // Déconnexion de l'utilisateur
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -152,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
               ),
-            if (isAdmin)
+            if (isAdmin || isEstablishmentAdmin)
               ListTile(
                 leading: const Icon(Icons.admin_panel_settings),
                 title: const Text('Gérer les utilisateurs'),
@@ -160,7 +161,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AdminUsersPage()),
+                        builder: (context) => AdminUsersPage(
+                              isAdmin: isAdmin,
+                              isEstablishmentAdmin: isEstablishmentAdmin,
+                              establishmentId: establishmentId,
+                            )),
                   );
                 },
               ),
@@ -181,7 +186,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('products').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('products')
+            .where('establishmentId', isEqualTo: establishmentId)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Erreur: ${snapshot.error}'));
